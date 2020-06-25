@@ -43,6 +43,7 @@ jobs:
 
     - name: Test and Build
       run: |
+        go mod vendor
         go test -race -coverprofile=coverage.txt -covermode=atomic -mod=vendor ./...
         if [[ -s coverage.txt ]]; then bash <(curl -s https://codecov.io/bash); fi
         go build -mod=vendor -o ./...

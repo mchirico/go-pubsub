@@ -2,7 +2,9 @@ package pubsub
 
 import (
 	"bytes"
+	"context"
 	"fmt"
+	"google.golang.org/api/iterator"
 	"log"
 	"strings"
 	"testing"
@@ -60,7 +62,6 @@ func TestG_CreateSubForCloudFunctions(t *testing.T) {
 	topic.Stop()
 }
 
-
 func TestG_CreateSub(t *testing.T) {
 	g := NewG()
 	topic, _ := g.CreateTopic("test")
@@ -95,6 +96,25 @@ func TestG_PullMsgs(t *testing.T) {
 		t.Fatalf("No message")
 	}
 	fmt.Printf("msg: %s\n", msg)
+
+}
+
+func Test_ListSubscriptions(t *testing.T) {
+	ctx := context.Background()
+	g := NewG()
+	topic, _ := g.CreateTopic("test")
+
+	for subs := topic.Subscriptions(ctx); ; {
+		sub, err := subs.Next()
+		if err == iterator.Done {
+			break
+		}
+		if err != nil {
+			// TODO: Handle error.
+		}
+		_ = sub // TODO: use the subscription.
+		t.Logf("sub: %s\n", sub.String())
+	}
 
 }
 

@@ -111,7 +111,7 @@ func TestG_PullMsgsTimeOut(t *testing.T) {
 	var buf bytes.Buffer
 
 	msg, n, err := g.PullMsgsTimeOut(&buf, "sub-test", 3)
-	for n==0 {
+	for n == 0 {
 		t.Log("Trying again")
 		msg, n, err = g.PullMsgsTimeOut(&buf, "sub-test", 3)
 	}

@@ -8,6 +8,7 @@ import (
 	"log"
 	"strings"
 	"testing"
+	"time"
 )
 
 func Test_creds(t *testing.T) {
@@ -92,6 +93,28 @@ func TestG_PullMsgs(t *testing.T) {
 	g := NewG()
 	var buf bytes.Buffer
 	msg, err := g.PullMsgs(&buf, "sub-test")
+	if err != nil {
+		t.Fatalf("No message")
+	}
+	fmt.Printf("msg: %s\n", msg)
+
+}
+
+// Block for N seconds
+func TestG_PullMsgsTimeOut(t *testing.T) {
+
+	go func() {
+		time.Sleep(4 * time.Second)
+		CreateMsg()
+	}()
+	g := NewG()
+	var buf bytes.Buffer
+
+	msg, n, err := g.PullMsgsTimeOut(&buf, "sub-test", 3)
+	if n == 0 {
+		t.Log("Trying again")
+		msg, n, err = g.PullMsgsTimeOut(&buf, "sub-test", 3)
+	}
 	if err != nil {
 		t.Fatalf("No message")
 	}

@@ -11,6 +11,7 @@ import (
 	"io/ioutil"
 	"log"
 	"sync"
+	"time"
 
 	"cloud.google.com/go/pubsub"
 )
@@ -179,4 +180,38 @@ func (g *G) PullMsgs(w io.Writer, subID string) ([]byte, error) {
 		return nil, fmt.Errorf("Receive: %v", err)
 	}
 	return message, nil
+}
+
+func (g *G) PullMsgsTimeOut(w io.Writer, subID string, seconds time.Duration) ([]byte, int, error) {
+	g.Lock()
+	defer g.Unlock()
+
+	var message []byte
+	ctx := context.Background()
+	client, err := pubsub.NewClient(ctx, g.Credential.Project_id, g.opt)
+	if err != nil {
+		return nil, 0, fmt.Errorf("pubsub.NewClient: %v", err)
+	}
+
+	// Consume 1 messages.
+	var mu sync.Mutex
+	received := 0
+	sub := client.Subscription(subID)
+	cctx, cancel := context.WithTimeout(ctx, seconds*time.Second)
+	defer cancel()
+	err = sub.Receive(cctx, func(ctx context.Context, msg *pubsub.Message) {
+		fmt.Fprintf(w, "Got message: %q\n", string(msg.Data))
+		msg.Ack()
+		mu.Lock()
+		defer mu.Unlock()
+		received++
+		message = msg.Data
+		if received == 1 {
+			cancel()
+		}
+	})
+	if err != nil {
+		return nil, 0, fmt.Errorf("Receive: %v", err)
+	}
+	return message, received, nil
 }

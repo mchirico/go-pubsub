@@ -104,14 +104,14 @@ func TestG_PullMsgs(t *testing.T) {
 func TestG_PullMsgsTimeOut(t *testing.T) {
 
 	go func() {
-		time.Sleep(4 * time.Second)
+		time.Sleep(14 * time.Second)
 		CreateMsg()
 	}()
 	g := NewG()
 	var buf bytes.Buffer
 
 	msg, n, err := g.PullMsgsTimeOut(&buf, "sub-test", 3)
-	if n == 0 {
+	for n==0 {
 		t.Log("Trying again")
 		msg, n, err = g.PullMsgsTimeOut(&buf, "sub-test", 3)
 	}

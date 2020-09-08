@@ -206,9 +206,7 @@ func (g *G) PullMsgsTimeOut(w io.Writer, subID string, seconds time.Duration) ([
 		defer mu.Unlock()
 		received++
 		message = msg.Data
-		if received == 1 {
-			cancel()
-		}
+
 	})
 	if err != nil {
 		return nil, 0, fmt.Errorf("Receive: %v", err)

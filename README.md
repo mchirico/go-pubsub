@@ -16,6 +16,8 @@ go mod init
 # Below will put all packages in a vendor folder
 go mod vendor
 
+# If you make changes to imported packages 
+go mod tidy
 
 
 go test -v -mod=vendor ./...
